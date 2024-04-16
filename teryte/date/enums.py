@@ -108,3 +108,11 @@ class Eras(enum.IntEnum):
         self.long_name = LONG_NAMES[value]
         self.start = BOUNDARIES[value]
         self.end = BOUNDARIES[value + 1]
+
+    def __format__(self, format_spec: str) -> str:
+        if format_spec == "s":
+            return self.short_name
+        elif format_spec == "l":
+            return self.long_name
+        else:
+            raise ValueError(f"Unknown format code '{format_spec}' for object of type '{type(self)}'")
