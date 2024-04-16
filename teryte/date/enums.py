@@ -96,7 +96,7 @@ LONG_NAMES = [
 
 
 @enum.global_enum
-class Eras(enum.IntEnum):
+class Era(enum.IntEnum):
     # Eras as referencable objects
     ZEROTH = 0
     FIRST = 1
