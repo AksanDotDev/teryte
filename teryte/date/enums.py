@@ -1,12 +1,13 @@
 import enum
-import teryte.utils as utils
+import teryte.utils as _utils
+from collections import namedtuple
 
 
 __all__ = ['Day', 'InigneDay', 'Month', 'InigneMonth']
 
 
 @enum.global_enum
-class Day(utils.PrettyEnumMixin, utils.ModuloMixin, enum.IntEnum):
+class Day(_utils.PrettyEnumMixin, _utils.ModuloMixin, enum.IntEnum):
     # Standard days of the week
     RESDAY = 1
     FALDAY = 2
@@ -17,7 +18,7 @@ class Day(utils.PrettyEnumMixin, utils.ModuloMixin, enum.IntEnum):
 
 
 @enum.global_enum
-class InigneDay(utils.PrettyEnumMixin, utils.ModuloMixin, enum.IntEnum):
+class InigneDay(_utils.PrettyEnumMixin, _utils.ModuloMixin, enum.IntEnum):
     # Inigne days of the week
     RESDAY = 1
     FALDAY = 2
@@ -28,7 +29,7 @@ class InigneDay(utils.PrettyEnumMixin, utils.ModuloMixin, enum.IntEnum):
 
 
 @enum.global_enum
-class Month(utils.PrettyEnumMixin, utils.MonthMixin, utils.ModuloMixin, enum.IntEnum):
+class Month(_utils.PrettyEnumMixin, _utils.MonthMixin, _utils.ModuloMixin, enum.IntEnum):
     # Standard months of the year
     RENEWAL = 1
     FROST_BREAK = 2
@@ -48,7 +49,7 @@ class Month(utils.PrettyEnumMixin, utils.MonthMixin, utils.ModuloMixin, enum.Int
 
 
 @enum.global_enum
-class InigneMonth(utils.PrettyEnumMixin, utils.MonthMixin, utils.ModuloMixin, enum.IntEnum):
+class InigneMonth(_utils.PrettyEnumMixin, _utils.MonthMixin, _utils.ModuloMixin, enum.IntEnum):
     # Inigne months of the year
     RENEWAL = 1
     FROST_BREAK = 2
@@ -65,3 +66,49 @@ class InigneMonth(utils.PrettyEnumMixin, utils.MonthMixin, utils.ModuloMixin, en
     HARVEST = 13
     TWILIGHT = 14
     DEEP_FROST = 15
+
+
+# Helper Namedtuple for creating reference eras
+# Years are ordinal from 0.0
+EraBoundary = namedtuple(
+    "EraBoundary",
+    [
+        "year",
+        "month",
+        "day"
+    ],
+    type=[
+        int,
+        int
+    ]
+)
+
+BOUNDARIES = [
+    None,
+    EraBoundary(0, 7, 19),
+    EraBoundary(720, 10, 21),
+    EraBoundary(861, 6, 6),
+    None
+]
+
+LONG_NAMES = [
+    "Before Dragons",
+    "Emergence",
+    "The Great Crusade",
+    "Integration",
+]
+
+
+@enum.global_enum
+class Eras(enum.IntEnum):
+    # Eras as referencable objects
+    ZEROTH = 0
+    FIRST = 1
+    SECOND = 2
+    THIRD = 3
+
+    def __init__(self, value):
+        self.short_name = self.name.capitalize()
+        self.long_name = LONG_NAMES[value]
+        self.start = BOUNDARIES[value]
+        self.end = BOUNDARIES[value + 1]
