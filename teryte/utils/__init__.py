@@ -11,6 +11,8 @@ class ModuloMixin():
             x += n
         return self.__class__(x)
 
+    __radd__ = __add__
+
     def __sub__(self, other: int):
         n = len(type(self))
         x = (int(self) - int(other)) % n
