@@ -76,10 +76,6 @@ EraBoundary = namedtuple(
         "year",
         "month",
         "day"
-    ],
-    type=[
-        int,
-        int
     ]
 )
 
