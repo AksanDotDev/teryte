@@ -7,7 +7,8 @@ class Date:
     Constructors:
 
     __new__()
-    _fromeraboundary()
+    noncanonical()
+    arbitrary()
     fromdatestring()
     frominignedate()
     fromordinal()
