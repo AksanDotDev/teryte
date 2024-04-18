@@ -80,11 +80,10 @@ EraBoundary = namedtuple(
 )
 
 BOUNDARIES = [
-    None,
-    EraBoundary(0, 7, 19),
-    EraBoundary(720, 10, 21),
-    EraBoundary(861, 6, 6),
-    None
+    (None, EraBoundary(0, 7, 19)),
+    (EraBoundary(0, 7, 19), EraBoundary(720, 10, 21)),
+    (EraBoundary(0, 10, 21), EraBoundary(141, 6, 6)),
+    (EraBoundary(0, 6, 6), None),
 ]
 
 LONG_NAMES = [
@@ -106,13 +105,15 @@ class Era(enum.IntEnum):
     def __init__(self, value):
         self.short_name = self.name.capitalize()
         self.long_name = LONG_NAMES[value]
-        self.start = BOUNDARIES[value]
-        self.end = BOUNDARIES[value + 1]
+        self._start = BOUNDARIES[value][0]
+        self._end = BOUNDARIES[value][1]
 
     def __format__(self, format_spec: str) -> str:
-        if format_spec == "s":
+        if format_spec == "s" or format_spec == "":
             return self.short_name
         elif format_spec == "l":
             return self.long_name
+        elif format_spec == "i":
+            return str(self.value)
         else:
             raise ValueError(f"Unknown format code '{format_spec}' for object of type '{type(self)}'")
