@@ -1,5 +1,5 @@
 import enum
-import teryte.date.enums as _enums
+import teryte.calendar.enums as _enums
 import typing
 
 
