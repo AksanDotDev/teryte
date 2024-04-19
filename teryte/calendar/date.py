@@ -81,6 +81,7 @@ class Date:
     month()
     inignemonth()
     canonicaldate()
+    eralessdate()
     equivalentdates()
     eraordinalday()
 
@@ -176,8 +177,26 @@ class Date:
         return self._month
 
     @property
+    def inignemonth(self):
+        return _enums.InigneMonth(self._month)
+
+    @property
     def day(self):
         return self._day
+
+    @property
+    def weekday(self):
+        wd = self._day % 6
+        if wd == 0:
+            wd = 6
+        return _enums.Day(wd)
+
+    @property
+    def inigneweekday(self):
+        wd = self._day % 6
+        if wd == 0:
+            wd = 6
+        return _enums.InigneDay(wd)
 
 
 for i in range(4):
