@@ -137,8 +137,17 @@ class Date:
 
     @classmethod
     def fromdatestring(cls, datestring: str):
-        # TODO Validation that it is a datestring
-        pass
+        try:
+            if datestring[0] == 'A':
+                tokens = datestring[1:].split(".")
+                assert len(tokens) == 3
+                return cls.arbitrary(None, *map(int, tokens))
+            else:
+                tokens = datestring.split(".")
+                assert len(tokens) == 4
+                return cls.arbitrary(*map(int, tokens))
+        except Exception:
+            raise ValueError(f'Invalid format datestring: {datestring!r}')
 
     def todatestring(self):
         return str(self)
@@ -148,6 +157,10 @@ class Date:
             return f"{self.era:i}.{self.year}.{self.month:i}.{self.day}"
         else:
             return f"A{self.year}.{self.month:i}.{self.day}"
+
+    def __repr__(self):
+        type_ = type(self)
+        return f"<{type_.__module__}.{type_.__qualname__}({self})>"
 
     # Read-only field accessors
     @property
