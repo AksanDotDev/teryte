@@ -209,24 +209,3 @@ for i in range(4):
         era.end = None
     else:
         era.end = Date.arbitrary(i, era._end.year, era._end.month, era._end.day)
-
-
-class DateSequence:
-    """Helper class for formatting sequences of dates.
-
-    Constructors:
-
-    __new__()
-    fromiterstrs()
-    fromiterdates()
-    frominignestrs()
-    fromiterinignedates()
-
-    Methods:
-
-    toliststrs()
-    tolistdates()
-    tolistinignestrs()
-    tolistinignedates()
-
-    """
