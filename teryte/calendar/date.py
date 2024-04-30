@@ -3,6 +3,10 @@ import teryte.calendar.enums as _enums
 import typing
 
 
+def _cmp(x, y):
+    return 0 if x == y else 1 if x > y else -1
+
+
 class Strictness(enum.IntEnum):
     ARBITRARY_NO_ERA = 1
     ARBITRARY = 2
@@ -69,17 +73,18 @@ class Date:
     Operators:
     __repr__, __str__
     __eq__, __le__, __lt__, __ge__, __gt__, __hash__
-    __add__, __radd__, __sub__ (Only with timedelta args)
+    __add__, __radd__, __sub__ (Only with TimeDelta args)
 
     Methods:
 
     todatestring()
     toinignedate()
     toordinal()
-    weekday()
-    inigneweekday()
+    ordinalyear()
     month()
     inignemonth()
+    weekday()
+    inigneweekday()
     canonicaldate()
     eralessdate()
     equivalentdates()
@@ -163,6 +168,42 @@ class Date:
         type_ = type(self)
         return f"<{type_.__module__}.{type_.__qualname__}({self})>"
 
+    def __eq__(self, other):
+        if isinstance(other, Date):
+            return self._cmp(other) == 0
+        else:
+            return NotImplemented
+
+    def __le__(self, other):
+        if isinstance(other, Date):
+            return self._cmp(other) <= 0
+        else:
+            return NotImplemented
+
+    def __lt__(self, other):
+        if isinstance(other, Date):
+            return self._cmp(other) < 0
+        else:
+            return NotImplemented
+
+    def __ge__(self, other):
+        if isinstance(other, Date):
+            return self._cmp(other) >= 0
+        else:
+            return NotImplemented
+
+    def __gt__(self, other):
+        if isinstance(other, Date):
+            return self._cmp(other) > 0
+        else:
+            return NotImplemented
+
+    def _cmp(self, other):
+        assert isinstance(other, Date)
+        s_y, s_m, s_d = self.ordinalyear, self.month, self.day
+        o_y, o_m, o_d = other.ordinalyear, other.month, other.day
+        return _cmp((s_y, s_m, s_d), (o_y, o_m, o_d))
+
     # Read-only field accessors
     @property
     def era(self):
@@ -171,6 +212,20 @@ class Date:
     @property
     def year(self):
         return self._year
+
+    @property
+    def ordinalyear(self):
+        if self.era is None:
+            return self.year
+        elif self.era is _enums.Era.ZEROTH:
+            return -self.year
+        elif self.era is _enums.Era.ZEROTH:
+            return self.year
+        else:
+            ordinalyear = self.year
+            for i in range(self.era):
+                ordinalyear += _enums.Era(i).end.year
+            return ordinalyear
 
     @property
     def month(self):
