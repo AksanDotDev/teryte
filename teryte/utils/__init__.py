@@ -2,7 +2,10 @@ import enum
 
 
 class PrettyEnumMixin():
-    def __format__(self, format_spec: str):
+    value: int
+    name: str
+
+    def __format__(self, format_spec: str) -> str:
         if format_spec == "i":
             return str(self.value)
         elif format_spec == "":
@@ -11,30 +14,12 @@ class PrettyEnumMixin():
             raise ValueError(f"Unknown format code '{format_spec}' for object of type '{type(self)}'")
 
 
-class ModuloMixin():
-    def __add__(self, other: int):
-        n = len(type(self))
-        x = (int(self) + int(other)) % n
-        if x < 1:
-            x += n
-        return self.__class__(x)
-
-    __radd__ = __add__
-
-    def __sub__(self, other: int):
-        n = len(type(self))
-        x = (int(self) - int(other)) % n
-        if x < 1:
-            x += n
-        return self.__class__(x)
-
-
 class MonthMixin():
     @enum.property
-    def days(self):
+    def days(self) -> int:
         return self._days
 
-    def __init__(self, value):
+    def __init__(self, value: int):
         if value == 15:
             self._days = 12
         else:

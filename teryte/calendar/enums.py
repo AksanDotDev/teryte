@@ -3,11 +3,11 @@ import teryte.utils as _utils
 from collections import namedtuple
 
 
-__all__ = ['Day', 'InigneDay', 'Month', 'InigneMonth']
+__all__ = ['Day', 'InigneDay', 'Month', 'InigneMonth', 'Era']
 
 
 @enum.global_enum
-class Day(_utils.PrettyEnumMixin, _utils.ModuloMixin, enum.IntEnum):
+class Day(_utils.PrettyEnumMixin, enum.IntEnum):
     # Standard days of the week
     RESDAY = 1
     FALDAY = 2
@@ -18,7 +18,7 @@ class Day(_utils.PrettyEnumMixin, _utils.ModuloMixin, enum.IntEnum):
 
 
 @enum.global_enum
-class InigneDay(_utils.PrettyEnumMixin, _utils.ModuloMixin, enum.IntEnum):
+class InigneDay(_utils.PrettyEnumMixin, enum.IntEnum):
     # Inigne days of the week
     RESDAY = 1
     FALDAY = 2
@@ -29,7 +29,7 @@ class InigneDay(_utils.PrettyEnumMixin, _utils.ModuloMixin, enum.IntEnum):
 
 
 @enum.global_enum
-class Month(_utils.PrettyEnumMixin, _utils.MonthMixin, _utils.ModuloMixin, enum.IntEnum):
+class Month(_utils.PrettyEnumMixin, _utils.MonthMixin, enum.IntEnum):
     # Standard months of the year
     RENEWAL = 1
     FROST_BREAK = 2
@@ -49,7 +49,7 @@ class Month(_utils.PrettyEnumMixin, _utils.MonthMixin, _utils.ModuloMixin, enum.
 
 
 @enum.global_enum
-class InigneMonth(_utils.PrettyEnumMixin, _utils.MonthMixin, _utils.ModuloMixin, enum.IntEnum):
+class InigneMonth(_utils.PrettyEnumMixin, _utils.MonthMixin, enum.IntEnum):
     # Inigne months of the year
     RENEWAL = 1
     FROST_BREAK = 2
@@ -80,11 +80,14 @@ Epoch = namedtuple(
 )
 
 ERA_EPOCHS = [
-    (None, Epoch(0, 7, 19)),
-    (Epoch(0, 7, 19), Epoch(720, 10, 21)),
-    (Epoch(0, 10, 21), Epoch(141, 6, 6)),
-    (Epoch(0, 6, 6), None),
+    None,
+    Epoch(0, 7, 19),
+    Epoch(720, 10, 21),
+    Epoch(861, 6, 6),
+    None,
 ]
+
+ERA_EPOCH_PAIRS = list(zip(ERA_EPOCHS, ERA_EPOCHS[1:]))
 
 ERA_LONG_NAMES = [
     "Before Dragons",
@@ -96,17 +99,17 @@ ERA_LONG_NAMES = [
 
 @enum.global_enum
 class Era(enum.IntEnum):
+
     # Eras as referenceable objects
     ZEROTH = 0
     FIRST = 1
     SECOND = 2
     THIRD = 3
 
-    def __init__(self, value):
+    def __init__(self, value: int):
         self.short_name = self.name.capitalize()
         self.long_name = ERA_LONG_NAMES[value]
-        self._start = ERA_EPOCHS[value][0]
-        self._end = ERA_EPOCHS[value][1]
+        self._start, self._end = ERA_EPOCH_PAIRS[value]
 
     def __format__(self, format_spec: str) -> str:
         if format_spec == "s" or format_spec == "":
@@ -117,6 +120,3 @@ class Era(enum.IntEnum):
             return str(self.value)
         else:
             raise ValueError(f"Unknown format code '{format_spec}' for object of type '{type(self)}'")
-
-del ERA_EPOCHS
-del ERA_LONG_NAMES

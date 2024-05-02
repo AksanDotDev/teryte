@@ -1,6 +1,6 @@
 import enum
 import teryte.calendar.enums as _enums
-import typing
+import typing as T
 
 
 def _cmp(x, y):
@@ -15,47 +15,16 @@ class Strictness(enum.IntEnum):
 
 
 def _check_date_fields(
-    era: int, year: int, month: int, day: int,
-    strictness: Strictness = Strictness.CANONICAL
+    year: int, month: int, day: int
 ):
-    if era not in _enums.Era:
-        if strictness >= Strictness.VALID:
-            raise ValueError(f"Era value '{era}' not recognised in '{_enums.Era}'")
-    else:
-        era = _enums.Era(era)
-
-    if strictness >= Strictness.ARBITRARY and year < 0:
-        raise ValueError("Year value must be greater than 0")
-
-    if strictness >= Strictness.VALID and era > _enums.Era.ZEROTH and (
-        era.end is not None and year > era.end.year
-    ):
-        raise ValueError(f"For Era '{era:s}' year value must less than {era.end.year}")
-
     if month not in _enums.Month:
         raise ValueError(f"Month value not recognised in {_enums.Month}")
-    else:
-        month = _enums.Month(month)
 
-    if not 1 <= day <= month.days:
-        raise ValueError(f"For Month '{month}' day value must be in 1..{month.days}")
+    e_month = _enums.Month(month)
+    if not 1 <= day <= e_month.days:
+        raise ValueError(f"For Month '{e_month}' day value must be in 1..{e_month.days}")
 
-    if strictness == Strictness.CANONICAL:
-        if era == _enums.Era.ZEROTH and year == era.end.year and (
-            month > era.end.month or month == era.end.month and day < era.end.day
-        ):
-            raise ValueError(f"For Era '{era:s}' the date must be before {era.end}")
-
-        if era.start is not None and year == era.start.year and (
-            month < era.start.month or month == era.start.month and day < era.start.day
-        ):
-            raise ValueError(f"For Era '{era:s}' the date must be after {era.start}")
-        if era.end is not None and year == era.end.year and (
-            month > era.end.month or month == era.end.month and day < era.end.day
-        ):
-            raise ValueError(f"For Era '{era:s}' the date must be before {era.end}")
-
-    return era, year, month, day
+    return year, month, day
 
 
 class Date:
@@ -86,24 +55,27 @@ class Date:
     weekday()
     inigneweekday()
     canonicaldate()
-    yearsinceepoch()
+    erayear()
     equivalentdates()
     eraordinalday()
 
     """
 
-    __slots__ = '_era', '_year', '_month', '_day', '_hashcode'
+    __slots__ = '_year', '_month', '_day', '_hashcode'
+    _year: int
+    _month: int
+    _day: int
+    _hashcode: int
 
-    def __new__(cls, era: int, year: int, month: int, day: int):
+    def __new__(cls, year: int, month: int, day: int) -> T.Self:
         """Constructor.
 
         Arguments:
 
-        era, year, month, day (required)
+        year, month, day (required)
         """
-        era, year, month, day = _check_date_fields(era, year, month, day)
+        year, month, day = _check_date_fields(year, month, day)
         self = object.__new__(cls)
-        self._era = era
         self._year = year
         self._month = month
         self._day = day
@@ -111,171 +83,117 @@ class Date:
         return self
 
     @classmethod
-    def noncanonical(cls, era: int, year: int, month: int, day: int):
-        era, year, month, day = _check_date_fields(
-            era, year, month, day, Strictness.VALID
-        )
-        self = object.__new__(cls)
-        self._era = era
-        self._year = year
-        self._month = month
-        self._day = day
-        self._hashcode = -1
-        return self
-
-    @classmethod
-    def arbitrary(cls, era: typing.Optional[int], year: int, month: int, day: int):
-        if era is None:
-            era, year, month, day = _check_date_fields(
-                era, year, month, day, Strictness.ARBITRARY_NO_ERA
-            )
-        else:
-            era, year, month, day = _check_date_fields(
-                era, year, month, day, Strictness.ARBITRARY
-            )
-        self = object.__new__(cls)
-        self._era = era
-        self._year = year
-        self._month = month
-        self._day = day
-        self._hashcode = -1
-        return self
-
-    @classmethod
-    def fromdatestring(cls, datestring: str):
+    def fromdatestring(cls, datestring: str) -> T.Self:
         try:
-            tokens = datestring.split(".")
-            if tokens[0] == "DE":
-                if len(tokens) == 4:
-                    return cls.arbitrary(None, *map(int, tokens[1:]))
-                elif len(tokens) == 2:
-                    return cls.fromordinal()
-                else:
-                    raise ValueError(f'Invalid number of tokens in datestring: {datestring!r}')
-            else:
-                assert len(tokens) == 4
-                return cls.arbitrary(*map(int, tokens))
+            pass
         except Exception:
             raise ValueError(f'Invalid format datestring: {datestring!r}')
 
-    def todatestring(self):
+    def todatestring(self) -> str:
         return str(self)
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.era is not None:
             return f"{self.era:i}.{self.year}.{self.month:i}.{self.day}"
         else:
             return f"DE.{self.year}.{self.month:i}.{self.day}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         type_ = type(self)
         return f"<{type_.__module__}.{type_.__qualname__}({self})>"
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if isinstance(other, Date):
             return self._cmp(other) == 0
         else:
             return NotImplemented
 
-    def __le__(self, other):
+    def __le__(self, other) -> bool:
         if isinstance(other, Date):
             return self._cmp(other) <= 0
         else:
             return NotImplemented
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         if isinstance(other, Date):
             return self._cmp(other) < 0
         else:
             return NotImplemented
 
-    def __ge__(self, other):
+    def __ge__(self, other) -> bool:
         if isinstance(other, Date):
             return self._cmp(other) >= 0
         else:
             return NotImplemented
 
-    def __gt__(self, other):
+    def __gt__(self, other) -> bool:
         if isinstance(other, Date):
             return self._cmp(other) > 0
         else:
             return NotImplemented
 
-    def _cmp(self, other):
+    def _cmp(self, other: T.Self) -> T.Literal[-1, 0, 1]:
         assert isinstance(other, Date)
-        s_y, s_m, s_d = self.yearsinceepoch, self.month, self.day
-        o_y, o_m, o_d = other.yearsinceepoch, other.month, other.day
-        return _cmp((s_y, s_m, s_d), (o_y, o_m, o_d))
+        return _cmp(self._getstate(), other._getstate())
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         "Hash."
         if self._hashcode == -1:
-            yhi, ylo = divmod(self.yearsinceepoch, 256)
-            self._hashcode = hash(bytes([yhi, ylo, self.month, self.day]))
+            yhi, ylo = divmod(self._year, 256)
+            self._hashcode = hash(bytes([yhi, ylo, self._month, self._day]))
         return self._hashcode
 
     # Read-only field accessors
     @property
-    def era(self):
-        return self._era
+    def era(self) -> _enums.Era:
+        pass
 
     @property
-    def year(self):
+    def year(self) -> int:
         return self._year
 
     @property
-    def yearsinceepoch(self):
-        if self.era is None:
-            return self.year
-        elif self.era is _enums.Era.ZEROTH:
-            return -self.year
-        elif self.era is _enums.Era.ZEROTH:
-            return self.year
-        else:
-            ordinalyear = self.year
-            for i in range(self.era):
-                ordinalyear += _enums.Era(i).end.year
-            return ordinalyear
+    def erayear(self) -> int:
+        pass
 
     @property
-    def month(self):
-        return self._month
+    def month(self) -> _enums.Month:
+        return _enums.Month(self._month)
 
     @property
-    def inignemonth(self):
+    def inignemonth(self) -> _enums.InigneMonth:
         return _enums.InigneMonth(self._month)
 
     @property
-    def day(self):
+    def day(self) -> int:
         return self._day
 
     @property
-    def weekday(self):
+    def weekday(self) -> _enums.Day:
         wd = self._day % 6
         if wd == 0:
             wd = 6
         return _enums.Day(wd)
 
     @property
-    def inigneweekday(self):
+    def inigneweekday(self) -> _enums.InigneDay:
         wd = self._day % 6
         if wd == 0:
             wd = 6
         return _enums.InigneDay(wd)
 
-    # Pickling
+    def _getstate(self) -> T.Tuple[int, int, int]:
+        return (self._year, self._month, self._day)
 
-    def __getnewargs__(self):
-        return (self.era, self.year, self.month, self.day)
+    __getnewargs__ = _getstate
 
 
-for i in range(4):
-    era = _enums.Era(i)
+for era in _enums.Era:
     if era._start is None:
-        era.start = None
+        era.start = None  # type: ignore[attr-defined]
     else:
-        era.start = Date.arbitrary(i, era._start.year, era._start.month, era._start.day)
+        era.start = Date(era._start.year, era._start.month, era._start.day)  # type: ignore[attr-defined]
     if era._end is None:
-        era.end = None
+        era.end = None  # type: ignore[attr-defined]
     else:
-        era.end = Date.arbitrary(i, era._end.year, era._end.month, era._end.day)
+        era.end = Date(era._end.year, era._end.month, era._end.day)  # type: ignore[attr-defined]
