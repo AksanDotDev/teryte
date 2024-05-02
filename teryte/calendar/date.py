@@ -86,7 +86,7 @@ class Date:
     weekday()
     inigneweekday()
     canonicaldate()
-    eralessdate()
+    yearsinceepoch()
     equivalentdates()
     eraordinalday()
 
@@ -144,12 +144,15 @@ class Date:
     @classmethod
     def fromdatestring(cls, datestring: str):
         try:
-            if datestring[0] == 'A':
-                tokens = datestring[1:].split(".")
-                assert len(tokens) == 3
-                return cls.arbitrary(None, *map(int, tokens))
+            tokens = datestring.split(".")
+            if tokens[0] == "DE":
+                if len(tokens) == 4:
+                    return cls.arbitrary(None, *map(int, tokens[1:]))
+                elif len(tokens) == 2:
+                    return cls.fromordinal()
+                else:
+                    raise ValueError(f'Invalid number of tokens in datestring: {datestring!r}')
             else:
-                tokens = datestring.split(".")
                 assert len(tokens) == 4
                 return cls.arbitrary(*map(int, tokens))
         except Exception:
@@ -162,7 +165,7 @@ class Date:
         if self.era is not None:
             return f"{self.era:i}.{self.year}.{self.month:i}.{self.day}"
         else:
-            return f"A{self.year}.{self.month:i}.{self.day}"
+            return f"DE.{self.year}.{self.month:i}.{self.day}"
 
     def __repr__(self):
         type_ = type(self)
@@ -200,8 +203,8 @@ class Date:
 
     def _cmp(self, other):
         assert isinstance(other, Date)
-        s_y, s_m, s_d = self.ordinalyear, self.month, self.day
-        o_y, o_m, o_d = other.ordinalyear, other.month, other.day
+        s_y, s_m, s_d = self.yearsinceepoch, self.month, self.day
+        o_y, o_m, o_d = other.yearsinceepoch, other.month, other.day
         return _cmp((s_y, s_m, s_d), (o_y, o_m, o_d))
 
     # Read-only field accessors
@@ -214,7 +217,7 @@ class Date:
         return self._year
 
     @property
-    def ordinalyear(self):
+    def yearsinceepoch(self):
         if self.era is None:
             return self.year
         elif self.era is _enums.Era.ZEROTH:
