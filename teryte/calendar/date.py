@@ -207,6 +207,13 @@ class Date:
         o_y, o_m, o_d = other.yearsinceepoch, other.month, other.day
         return _cmp((s_y, s_m, s_d), (o_y, o_m, o_d))
 
+    def __hash__(self):
+        "Hash."
+        if self._hashcode == -1:
+            yhi, ylo = divmod(self.yearsinceepoch, 256)
+            self._hashcode = hash(bytes([yhi, ylo, self.month, self.day]))
+        return self._hashcode
+
     # Read-only field accessors
     @property
     def era(self):
@@ -255,6 +262,11 @@ class Date:
         if wd == 0:
             wd = 6
         return _enums.InigneDay(wd)
+
+    # Pickling
+
+    def __getnewargs__(self):
+        return (self.era, self.year, self.month, self.day)
 
 
 for i in range(4):
