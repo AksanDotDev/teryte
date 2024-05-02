@@ -70,8 +70,8 @@ class InigneMonth(_utils.PrettyEnumMixin, _utils.MonthMixin, _utils.ModuloMixin,
 
 # Helper Namedtuple for creating reference eras
 # Years are ordinal from 0.0
-EraBoundary = namedtuple(
-    "EraBoundary",
+Epoch = namedtuple(
+    "Epoch",
     [
         "year",
         "month",
@@ -79,14 +79,14 @@ EraBoundary = namedtuple(
     ]
 )
 
-BOUNDARIES = [
-    (None, EraBoundary(0, 7, 19)),
-    (EraBoundary(0, 7, 19), EraBoundary(720, 10, 21)),
-    (EraBoundary(0, 10, 21), EraBoundary(141, 6, 6)),
-    (EraBoundary(0, 6, 6), None),
+ERA_EPOCHS = [
+    (None, Epoch(0, 7, 19)),
+    (Epoch(0, 7, 19), Epoch(720, 10, 21)),
+    (Epoch(0, 10, 21), Epoch(141, 6, 6)),
+    (Epoch(0, 6, 6), None),
 ]
 
-LONG_NAMES = [
+ERA_LONG_NAMES = [
     "Before Dragons",
     "Emergence",
     "The Great Crusade",
@@ -104,9 +104,9 @@ class Era(enum.IntEnum):
 
     def __init__(self, value):
         self.short_name = self.name.capitalize()
-        self.long_name = LONG_NAMES[value]
-        self._start = BOUNDARIES[value][0]
-        self._end = BOUNDARIES[value][1]
+        self.long_name = ERA_LONG_NAMES[value]
+        self._start = ERA_EPOCHS[value][0]
+        self._end = ERA_EPOCHS[value][1]
 
     def __format__(self, format_spec: str) -> str:
         if format_spec == "s" or format_spec == "":
@@ -117,3 +117,6 @@ class Era(enum.IntEnum):
             return str(self.value)
         else:
             raise ValueError(f"Unknown format code '{format_spec}' for object of type '{type(self)}'")
+
+del ERA_EPOCHS
+del ERA_LONG_NAMES
