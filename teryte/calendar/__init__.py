@@ -1,3 +1,4 @@
+
 import typing as T
 import enum
 import teryte.utils as _utils
@@ -13,7 +14,7 @@ def _cmp(x, y):
 
 def _check_date_fields(
     year: int, month: int, day: int
-) -> T.Tuple[int, int, int]:
+) -> tuple[int, int, int]:
     assert isinstance(year, int)
     if month not in Month:
         raise ValueError(f"Month value not recognised in {Month}")
@@ -27,7 +28,7 @@ def _check_date_fields(
 
 def _unify_era_date(
     era: int, year: int, month: int, day: int
-) -> T.Tuple[int, int, int]:
+) -> tuple[int, int, int]:
     if era not in Era:
         raise ValueError(f"Era value '{era}' not recognised in '{Era}'")
     if year < 0:
@@ -46,7 +47,7 @@ def _unify_era_date(
 
 def _unify_ordinal_date(
     day: int, calendar: ReferenceCalendars  # type: ignore # noqa:F821
-) -> T.Tuple[int, int, int]:
+) -> tuple[int, int, int]:
     if day < 0:
         raise ValueError(f"Day value '{day}' invalid, ordinal days must be >= 0")
     if calendar.max is not None and day > calendar.max:
@@ -197,7 +198,7 @@ class Date:
 
     # Read-only field accessors
     @property
-    def era(self) -> Era:  # type: ignore # noqa:F821
+    def era(self) -> 'Era':
         pass
 
     @property
@@ -209,11 +210,11 @@ class Date:
         pass
 
     @property
-    def month(self) -> Month:  # type: ignore # noqa:F821
+    def month(self) -> 'Month':
         return Month(self._month)
 
     @property
-    def inignemonth(self) -> InigneMonth:  # type: ignore # noqa:F821
+    def inignemonth(self) -> 'InigneMonth':
         return InigneMonth(self._month)
 
     @property
@@ -221,20 +222,20 @@ class Date:
         return self._day
 
     @property
-    def weekday(self) -> Day:  # type: ignore # noqa:F821
+    def weekday(self) -> 'Day':
         wd = self._day % 6
         if wd == 0:
             wd = 6
         return Day(wd)
 
     @property
-    def inigneweekday(self) -> InigneDay:  # type: ignore # noqa:F821
+    def inigneweekday(self) -> 'InigneDay':
         wd = self._day % 6
         if wd == 0:
             wd = 6
         return InigneDay(wd)
 
-    def _getstate(self) -> T.Tuple[int, int, int]:
+    def _getstate(self) -> tuple[int, int, int]:
         return (self._year, self._month, self._day)
 
     __getnewargs__ = _getstate
