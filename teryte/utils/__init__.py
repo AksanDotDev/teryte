@@ -1,4 +1,20 @@
 import enum
+import typing as T
+
+
+class DataIntEnum(enum.IntEnum):
+    def __new__(cls, value, *args) -> T.Self:
+        obj = int.__new__(cls)
+        obj._value_ = value
+        return obj
+
+
+class DataEnum(enum.Enum):
+    def __new__(cls, *args) -> T.Self:
+        value = len(cls.__members__) + 1
+        obj = object.__new__(cls)
+        obj._value_ = value
+        return obj
 
 
 class PrettyEnumMixin():
