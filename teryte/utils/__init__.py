@@ -4,8 +4,7 @@ import typing as T
 
 class DataIntEnum(enum.IntEnum):
     def __new__(cls, value, *args) -> T.Self:
-        obj = int.__new__(cls)
-        obj._value_ = value
+        obj = int.__new__(cls, value)
         return obj
 
 
