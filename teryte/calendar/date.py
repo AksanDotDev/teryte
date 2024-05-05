@@ -197,7 +197,14 @@ class Date:
     # Read-only field accessors
     @property
     def era(self) -> 'Era':
-        pass
+        for era in Era:
+            if (
+                (era.start is None or era.start <= self)
+                and (era.end is None or self <= era.end)
+            ):
+                return era
+        else:
+            raise RuntimeError(f"No matching Era found, '{Era}' may be illformed.")
 
     @property
     def year(self) -> int:
@@ -205,7 +212,7 @@ class Date:
 
     @property
     def erayear(self) -> int:
-        pass
+        return self.year - self.era.start.year
 
     @property
     def month(self) -> 'Month':
