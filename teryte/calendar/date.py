@@ -36,9 +36,9 @@ def _unify_era_date(
     if e_era.start is not None:
         year += e_era.start.year
         if (year, month, day) < e_era.start._getstate():
-            raise ValueError(f"For Era '{e_era:s}' the date must be after {e_era.start:e}")
+            raise ValueError(f"For Era '{e_era:s}' the date must be after {e_era.start:c}")
     if e_era.end is not None and (year, month, day) > e_era.end._getstate():
-        raise ValueError(f"For Era '{e_era:s}' the date must be before {e_era.end:e}")
+        raise ValueError(f"For Era '{e_era:s}' the date must be before {e_era.end:c}")
     return year, month, day
 
 
@@ -148,9 +148,14 @@ class Date:
 
     def __format__(self, format_spec: str) -> str:
         if format_spec in ["", "eraless", "epoch"]:
-            return str(self)
+            if self.year < 0:
+                return f"BDE.{-self.year}.{self.month:i}.{self.day}"
+            else:
+                return f"ADE.{self.year}.{self.month:i}.{self.day}"
         elif format_spec in ["era", "c", "canonical"]:
             return f"{self.era:i}.{self.erayear}.{self.month:i}.{self.day}"
+        else:
+            raise ValueError(f"Unknown format code '{format_spec}' for object of type '{type(self)}'")
 
     def __repr__(self) -> str:
         type_ = type(self)
@@ -215,7 +220,13 @@ class Date:
 
     @property
     def erayear(self) -> int:
-        return self.year - self.era.start.year
+        e_year = self.year
+        if self.era.start is not None:
+            e_year -= self.era.start.year
+        if self.era.negated:
+            return -e_year
+        else:
+            return e_year
 
     @property
     def month(self) -> 'Month':
