@@ -43,7 +43,7 @@ def _unify_era_date(
 
 
 def _unify_ordinal_date(
-    day: int, calendar: ReferenceCalendars  # type: ignore # noqa:F821
+    day: int, calendar: 'ReferenceCalendars'
 ) -> tuple[int, int, int]:
     if day < 0:
         raise ValueError(f"Day value '{day}' invalid, ordinal days must be >= 0")
@@ -283,9 +283,6 @@ class DateDelta():
         return self
 
 
-_DRACONIC_EPOCH = Date(0, 7, 19)
-
-
 @enum.global_enum
 class Day(_utils.PrettyEnumMixin, enum.IntEnum):
     # Standard days of the week
@@ -348,12 +345,15 @@ class InigneMonth(_utils.PrettyEnumMixin, _utils.MonthMixin, enum.IntEnum):
     DEEP_FROST = 15
 
 
+_DRACONIC_EPOCH = Date(0, 7, 19)
+
+
 @enum.global_enum
 class Era(_utils.DataIntEnum):
 
     # Eras as referenceable objects
-    ZEROTH = 0, "Before Dragons", None, Date(0, 7, 19)
-    FIRST = 1, "Emergence", Date(0, 7, 19), Date(720, 10, 21)
+    ZEROTH = 0, "Before Dragons", None, _DRACONIC_EPOCH
+    FIRST = 1, "Emergence", _DRACONIC_EPOCH, Date(720, 10, 21)
     SECOND = 2, "The Great Crusade", Date(720, 10, 21), Date(861, 6, 6)
     THIRD = 3, "Integration", Date(861, 6, 6), None
 
