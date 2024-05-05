@@ -141,19 +141,16 @@ class Date:
             raise ValueError(f'Invalid format datestring: {datestring!r}')
 
     def todatestring(self) -> str:
-        return str(self)
+        return format(self, "canonical")
 
     def __str__(self) -> str:
-        if self.year < 0:
-            return f"BDE.{-self.year}.{self.month:i}.{self.day}"  # Note negation
-        else:
-            return f"ADE.{self.year}.{self.month:i}.{self.day}"
+        return format(self, "eraless")
 
     def __format__(self, format_spec: str) -> str:
         if format_spec in ["", "eraless", "epoch"]:
             return str(self)
         elif format_spec in ["era", "c", "canonical"]:
-            return f"{self.era}.{self.erayear}.{self.month}.{self.day}"
+            return f"{self.era:i}.{self.erayear}.{self.month:i}.{self.day}"
 
     def __repr__(self) -> str:
         type_ = type(self)
