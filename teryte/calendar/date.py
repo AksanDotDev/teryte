@@ -124,6 +124,7 @@ class Date:
                     year = int(tokens[1])
                 else:
                     era = int(tokens[0])
+                    year = int(tokens[1])
                     year, month, day = _unify_era_date(era, year, month, day)
             elif len(tokens) == 2:
                 raise NotImplementedError()
