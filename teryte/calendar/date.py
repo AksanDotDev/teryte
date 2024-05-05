@@ -69,7 +69,7 @@ class Date:
     fromordinal()
 
     Operators:
-    __repr__, __str__
+    __repr__, __str__, __format__
     __eq__, __le__, __lt__, __ge__, __gt__, __hash__
     __add__, __radd__, __sub__ (Only with TimeDelta args)
 
@@ -144,10 +144,16 @@ class Date:
         return str(self)
 
     def __str__(self) -> str:
-        if self.era is not None:
-            return f"{self.era:i}.{self.year}.{self.month:i}.{self.day}"
+        if self.year < 0:
+            return f"BDE.{-self.year}.{self.month:i}.{self.day}"  # Note negation
         else:
-            return f"DE.{self.year}.{self.month:i}.{self.day}"
+            return f"ADE.{self.year}.{self.month:i}.{self.day}"
+
+    def __format__(self, format_spec: str) -> str:
+        if format_spec in ["", "eraless", "epoch"]:
+            return str(self)
+        elif format_spec in ["era", "c", "canonical"]:
+            return f"{self.era}.{self.erayear}.{self.month}.{self.day}"
 
     def __repr__(self) -> str:
         type_ = type(self)
@@ -200,7 +206,7 @@ class Date:
         for era in Era:
             if (
                 (era.start is None or era.start <= self)
-                and (era.end is None or self <= era.end)
+                and (era.end is None or self < era.end)
             ):
                 return era
         else:
