@@ -3,6 +3,7 @@ import enum
 import teryte.utils as _utils
 
 _DAYS_IN_YEAR = 348
+_DAYS_IN_STANDARD_MONTH = 24
 
 
 def _cmp(x, y):
@@ -284,11 +285,77 @@ class DateDelta():
     def __new__(cls, years: int = 0, days: int = 0) -> T.Self:
         assert isinstance(years, int)
         assert isinstance(days, int)
-        d_years, r_days = divmod(days, _DAYS_IN_YEAR)
         self = object.__new__(cls)
-        self._years = years + d_years
-        self._days = r_days
+        self._years = years 
+        self._days = days
+        self._reconcile
         return self
+
+    def _reconcile(self) -> None:
+        d_years, r_days = divmod(self._days, _DAYS_IN_YEAR)
+        self._years += d_years
+        self._days = r_days
+
+    @property
+    def years(self) -> int:
+        return self._years
+
+    @property
+    def months(self) -> int:
+        return self._days // _DAYS_IN_STANDARD_MONTH
+
+    @property
+    def days(self) -> int:
+        return self._days % _DAYS_IN_STANDARD_MONTH
+
+    @property
+    def asyears(self) -> float:
+        return self._years + (self._days / _DAYS_IN_YEAR)
+
+    @property
+    def asdays(self) -> int:
+        return (self._years * _DAYS_IN_YEAR) + self._days
+
+    @property
+    def asstandardmonths(self) -> float:
+        return self.asdays / _DAYS_IN_STANDARD_MONTH
+
+    def __eq__(self, other) -> bool:
+        if isinstance(other, Date):
+            return self._cmp(other) == 0
+        else:
+            return NotImplemented
+
+    def __le__(self, other) -> bool:
+        if isinstance(other, Date):
+            return self._cmp(other) <= 0
+        else:
+            return NotImplemented
+
+    def __lt__(self, other) -> bool:
+        if isinstance(other, Date):
+            return self._cmp(other) < 0
+        else:
+            return NotImplemented
+
+    def __ge__(self, other) -> bool:
+        if isinstance(other, Date):
+            return self._cmp(other) >= 0
+        else:
+            return NotImplemented
+
+    def __gt__(self, other) -> bool:
+        if isinstance(other, Date):
+            return self._cmp(other) > 0
+        else:
+            return NotImplemented
+
+    def _cmp(self, other: T.Self) -> T.Literal[-1, 0, 1]:
+        assert isinstance(other, Date)
+        return _cmp(self._getstate(), other._getstate())
+
+    def _getstate(self) -> tuple[int, int]:
+        return (self._years, self._days)
 
 
 @enum.global_enum
