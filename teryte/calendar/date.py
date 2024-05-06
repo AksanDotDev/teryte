@@ -286,7 +286,7 @@ class DateDelta():
         assert isinstance(years, int)
         assert isinstance(days, int)
         self = object.__new__(cls)
-        self._years = years 
+        self._years = years
         self._days = days
         self._reconcile
         return self
