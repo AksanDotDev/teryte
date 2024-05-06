@@ -321,31 +321,31 @@ class DateDelta():
         return self.asdays / _DAYS_IN_STANDARD_MONTH
 
     def __eq__(self, other) -> bool:
-        if isinstance(other, Date):
+        if isinstance(other, DateDelta):
             return self._cmp(other) == 0
         else:
             return NotImplemented
 
     def __le__(self, other) -> bool:
-        if isinstance(other, Date):
+        if isinstance(other, DateDelta):
             return self._cmp(other) <= 0
         else:
             return NotImplemented
 
     def __lt__(self, other) -> bool:
-        if isinstance(other, Date):
+        if isinstance(other, DateDelta):
             return self._cmp(other) < 0
         else:
             return NotImplemented
 
     def __ge__(self, other) -> bool:
-        if isinstance(other, Date):
+        if isinstance(other, DateDelta):
             return self._cmp(other) >= 0
         else:
             return NotImplemented
 
     def __gt__(self, other) -> bool:
-        if isinstance(other, Date):
+        if isinstance(other, DateDelta):
             return self._cmp(other) > 0
         else:
             return NotImplemented
