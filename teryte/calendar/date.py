@@ -57,6 +57,26 @@ def _unify_ordinal_date(
     return temp._year, temp._month, temp._day
 
 
+def _reconcile_date_arithmatic(
+    date: tuple[int, int, int],
+    delta: tuple[int, int]
+):
+    year, month, day = date
+    d_year, d_day = delta
+    year += d_year
+    day += d_day
+    e_month = Month(month)
+    while day > e_month.days:
+        if month == 15:
+            month = 1
+            day -= e_month.days
+            year += 1
+        else:
+            month += 1
+            day -= e_month.days
+    return year, month, day
+
+
 class Date:
     """Basic type for Teryte dates.
 
@@ -142,6 +162,7 @@ class Date:
             raise ValueError(f'Invalid format datestring: {datestring!r}')
 
     def todatestring(self) -> str:
+        # TODO make more akin to the OG date function.
         return format(self, "canonical")
 
     def __str__(self) -> str:
@@ -195,6 +216,13 @@ class Date:
     def _cmp(self, other: T.Self) -> T.Literal[-1, 0, 1]:
         assert isinstance(other, Date)
         return _cmp(self._getstate(), other._getstate())
+
+    def __add__(self, other: 'DateDelta') -> T.Self:
+        if isinstance(other, DateDelta):
+            year, month, day = _reconcile_date_arithmatic(self._getstate(), other._getstate())
+            return self.__class__(year, month, day)
+        else:
+            return NotImplemented
 
     def __hash__(self) -> int:
         "Hash."
@@ -353,6 +381,14 @@ class DateDelta():
     def _cmp(self, other: T.Self) -> T.Literal[-1, 0, 1]:
         assert isinstance(other, Date)
         return _cmp(self._getstate(), other._getstate())
+
+    def __add__(self, other: T.Self | Date) -> T.Self | Date:
+        if isinstance(other, DateDelta):
+            return self.__class__(self._years + other._years, self._days + other._days)
+        elif isinstance(other, Date):
+            return other.__add__(self)
+        else:
+            return NotImplemented
 
     def _getstate(self) -> tuple[int, int]:
         return (self._years, self._days)
