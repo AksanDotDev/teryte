@@ -92,7 +92,7 @@ class Date:
     Operators:
     __repr__, __str__, __format__
     __eq__, __le__, __lt__, __ge__, __gt__, __hash__
-    __iadd__, __add__, __radd__, __sub__
+    __add__, __radd__, __sub__
 
     Methods:
 
