@@ -224,6 +224,8 @@ class Date:
         else:
             return NotImplemented
 
+    __radd__ = __add__
+
     def __hash__(self) -> int:
         "Hash."
         if self._hashcode == -1:
