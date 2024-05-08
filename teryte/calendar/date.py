@@ -165,6 +165,20 @@ class Date:
         # TODO make more akin to the OG date function.
         return format(self, "canonical")
 
+    def replace(
+        self,
+        year: int | None = None,
+        month: int | None = None,
+        day: int | None = None
+    ) -> T.Self:
+        if year is None:
+            year = self._year
+        if month is None:
+            month = self._month
+        if day is None:
+            day = self._day
+        return type(self)(year, month, day)
+
     def __str__(self) -> str:
         return format(self, "eraless")
 
