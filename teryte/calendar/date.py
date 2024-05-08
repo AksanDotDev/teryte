@@ -220,7 +220,7 @@ class Date:
     def __add__(self, other: 'DateDelta') -> T.Self:
         if isinstance(other, DateDelta):
             year, month, day = _reconcile_date_arithmatic(self._getstate(), other._getstate())
-            return self.__class__(year, month, day)
+            return type(self)(year, month, day)
         else:
             return NotImplemented
 
@@ -386,7 +386,7 @@ class DateDelta():
 
     def __add__(self, other: T.Self | Date) -> T.Self | Date:
         if isinstance(other, DateDelta):
-            return self.__class__(self._years + other._years, self._days + other._days)
+            return type(self)(self._years + other._years, self._days + other._days)
         elif isinstance(other, Date):
             return other.__add__(self)
         else:
