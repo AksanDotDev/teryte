@@ -66,6 +66,9 @@ def _reconcile_date_arithmatic(
     year += d_year
     day += d_day
     e_month = Month(month)
+    while day < 0:
+        year -= 1
+        day += _DAYS_IN_YEAR
     while day > e_month.days:
         if month == 15:
             month = 1
@@ -240,6 +243,14 @@ class Date:
 
     __radd__ = __add__
 
+    def __sub__(self, other: T.Self | 'DateDelta') -> 'DateDelta' | T.Self:
+        if isinstance(other, Date):
+            pass  # TODO
+        elif isinstance(other, DateDelta):
+            return self + -other
+        else:
+            return NotImplemented
+
     def __hash__(self) -> int:
         "Hash."
         if self._hashcode == -1:
@@ -336,9 +347,12 @@ class DateDelta():
         return self
 
     def _reconcile(self) -> None:
-        d_years, r_days = divmod(self._days, _DAYS_IN_YEAR)
-        self._years += d_years
-        self._days = r_days
+        d_years, m_days = divmod(self.asdays, _DAYS_IN_YEAR)
+        if d_years < 0 and m_days > 0:
+            d_years += 1
+            m_days -= _DAYS_IN_YEAR
+        self._years = d_years
+        self._days = m_days
 
     @property
     def years(self) -> int:
@@ -346,11 +360,19 @@ class DateDelta():
 
     @property
     def months(self) -> int:
-        return self._days // _DAYS_IN_STANDARD_MONTH
+        d_months, m_days = divmod(self._days, _DAYS_IN_STANDARD_MONTH)
+        if d_months < 0 and m_days > 0:
+            return d_months + 1
+        else:
+            return d_months
 
     @property
     def days(self) -> int:
-        return self._days % _DAYS_IN_STANDARD_MONTH
+        d_months, m_days = divmod(self._days, _DAYS_IN_STANDARD_MONTH)
+        if d_months < 0 and m_days > 0:
+            return m_days - _DAYS_IN_STANDARD_MONTH
+        else:
+            return m_days
 
     @property
     def asyears(self) -> float:
@@ -405,6 +427,9 @@ class DateDelta():
             return other.__add__(self)
         else:
             return NotImplemented
+
+    def __neg__ (self) -> T.Self:
+        return type(self)(days=-self.asdays)
 
     def _getstate(self) -> tuple[int, int]:
         return (self._years, self._days)
