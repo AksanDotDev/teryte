@@ -428,7 +428,7 @@ class DateDelta():
         else:
             return NotImplemented
 
-    def __neg__ (self) -> T.Self:
+    def __neg__(self) -> T.Self:
         return type(self)(days=-self.asdays)
 
     def _getstate(self) -> tuple[int, int]:
