@@ -422,9 +422,15 @@ class DateDelta():
 
     def __add__(self, other: T.Self | Date) -> T.Self | Date:
         if isinstance(other, DateDelta):
-            return type(self)(self._years + other._years, self._days + other._days)
+            return type(self)(days=self.asdays + other.asdays)
         elif isinstance(other, Date):
             return other.__add__(self)
+        else:
+            return NotImplemented
+
+    def __mul__(self, other: int | float) -> T.Self:
+        if isinstance(other, int) or isinstance(other, float):
+            return type(self)(days=int(self.asdays*other))
         else:
             return NotImplemented
 
