@@ -430,7 +430,13 @@ class DateDelta():
 
     def __mul__(self, other: int | float) -> T.Self:
         if isinstance(other, int) or isinstance(other, float):
-            return type(self)(days=int(self.asdays*other))
+            return type(self)(days=int(self.asdays * other))
+        else:
+            return NotImplemented
+
+    def __div__(self, other: int) -> T.Self:
+        if isinstance(other, int):
+            return type(self)(days=self.asdays // other)
         else:
             return NotImplemented
 
