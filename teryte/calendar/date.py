@@ -245,7 +245,7 @@ class Date:
 
     def __sub__(self, other: T.Self | 'DateDelta') -> 'DateDelta' | T.Self:
         if isinstance(other, Date):
-            pass  # TODO
+            return DateDelta(days=(other._ordinal_days() - self._ordinal_days()))
         elif isinstance(other, DateDelta):
             return self + -other
         else:
@@ -312,6 +312,11 @@ class Date:
 
     def _getstate(self) -> tuple[int, int, int]:
         return (self._year, self._month, self._day)
+
+    def _ordinal_days(self) -> int:
+        return self._year * _DAYS_IN_YEAR \
+            + (self._month - 1) * _DAYS_IN_STANDARD_MONTH \
+            + self._day
 
     __getnewargs__ = _getstate
 
