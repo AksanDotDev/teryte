@@ -433,11 +433,25 @@ class DateDelta():
         else:
             return NotImplemented
 
+    def __sub__(self, other: T.Self) -> T.Self:
+        if isinstance(other, DateDelta):
+            return type(self)(days=self.asdays - other.asdays)
+        else:
+            return NotImplemented
+
+    def __rsub__(self, other: T.Self) -> T.Self:
+        if isinstance(other, DateDelta):
+            return type(self)(days=other.asdays - self.asdays)
+        else:
+            return NotImplemented
+
     def __mul__(self, other: int | float) -> T.Self:
         if isinstance(other, int) or isinstance(other, float):
             return type(self)(days=int(self.asdays * other))
         else:
             return NotImplemented
+
+    __rmul__ = __mul__
 
     def __div__(self, other: int) -> T.Self:
         if isinstance(other, int):
@@ -447,6 +461,15 @@ class DateDelta():
 
     def __neg__(self) -> T.Self:
         return type(self)(days=-self.asdays)
+
+    def __pos__(self) -> T.Self:
+        return self
+
+    def __abs__(self) -> T.Self:
+        if self.asdays < 0:
+            return -self
+        else:
+            return self
 
     def _getstate(self) -> tuple[int, int]:
         return (self._years, self._days)
